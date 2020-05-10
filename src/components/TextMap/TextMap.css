@@ -1,0 +1,13 @@
+.TextMap .tile-wrapper {
+  width: 1em;
+}
+
+.TextMap .tile-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.TextMap .tile-map-wrapper {
+  display: flex;
+  flex-direction: column;
+}
