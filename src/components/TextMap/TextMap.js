@@ -14,7 +14,7 @@ function TextMap() {
 
   const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
 
-  const [mapLetters, setMapLetters] = useState(
+  const [mapTiles, setmapTiles] = useState(
     [
       [TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
       [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
@@ -27,13 +27,12 @@ function TextMap() {
     ]
   )
 
-  const [mapText, setMapText] = useState([])
+  const [mapElements, setMapElements] = useState([])
 
   useEffect(() => {
-    applyForceDirection(mapLetters, userCoordinates); // if on slide tiles, ledge, etc
-    renderMap(mapLetters, userCoordinates)
-    
-  }, [mapLetters, userCoordinates])
+    applyForceDirection(mapTiles, userCoordinates); // if on slide tiles, ledge, etc
+    renderMap(mapTiles, userCoordinates)
+  }, [mapTiles, userCoordinates])
 
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -42,7 +41,7 @@ function TextMap() {
     };
   });
 
-  const applyForceDirection = (mapLetters, userCoordinates) => {
+  const applyForceDirection = (mapTiles, userCoordinates) => {
     const tileBeneathPlayer = getTileFromCoordinates({x: userCoordinates.x, y: userCoordinates.y})
     if (tileBeneathPlayer.forceDirection) {
       let targetCoordinates = getCoordinatesInDirection({
@@ -52,14 +51,14 @@ function TextMap() {
       })
       setTimeout(() => {
         setUserCoordinates(targetCoordinates)
-      }, 100);
+      }, 200);
     }
   }
 
-  const renderMap = (mapLetters, userCoordinates) => {
+  const renderMap = (mapTiles, userCoordinates) => {
     let elements = [];
     let x = 0, y = 0;
-    mapLetters.forEach(row => {
+    mapTiles.forEach(row => {
       let line = [];
       row.forEach(cell => {
         if (y === userCoordinates.y && x === userCoordinates.x) {
@@ -74,7 +73,7 @@ function TextMap() {
       y = 0;
     })
 
-    setMapText(<div className="tile-map-wrapper">{elements}</div>)
+    setMapElements(<div className="tile-map-wrapper">{elements}</div>)
   }
 
   const handleKeyDown = (e) => {
@@ -89,7 +88,7 @@ function TextMap() {
         return;
       }
 
-      if (mapLetters[cif.x][cif.y].canWalk) {
+      if (mapTiles[cif.x][cif.y].canWalk) {
         setUserCoordinates(cif)
       }
     }
@@ -129,7 +128,7 @@ function TextMap() {
 
   const getTileFromCoordinates = ({x, y}) => {
     try {
-      let tile = mapLetters[x][y];
+      let tile = mapTiles[x][y];
       return tile
     } catch (e) {
       alert(e)
@@ -139,7 +138,7 @@ function TextMap() {
   return (
     <div className="TextMap">
       <code>
-        {mapText}
+        {mapElements}
       </code>
     </div>
   );
