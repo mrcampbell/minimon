@@ -10,6 +10,11 @@ const DIRECTION_DOWN = "DIRECTION_DOWN"
 const DIRECTION_LEFT = "DIRECTION_LEFT"
 const DIRECTION_RIGHT = "DIRECTION_RIGHT"
 
+const UNICODE_UP_ARROW = "▲"
+const UNICODE_DOWN_ARROW = "▼"
+const UNICODE_LEFT_ARROW = "◀"
+const UNICODE_RIGHT_ARROW = "▶"
+
 const INPUT_TYPE_DIRECTION = "INPUT_TYPE_DIRECTION"
 const INPUT_TYPE_ACTION = "INPUT_TYPE_ACTION"
 const INPUT_DIRECTION_UP = { key: "INPUT_DIRECTION_UP", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_UP }
@@ -33,26 +38,27 @@ function TextMap() {
   const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
   const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
   const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
+  const [playerSprite, setPlayerSprite] = useState(UNICODE_DOWN_ARROW)
 
   const [mapTiles, setMapTiles] = useState(
     [
-      [TILE_BOULDER,TILE_BOULDER,TILE_BOULDER,TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_SHORT_GRASS,TILE_SHORT_GRASS,TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER,TILE_DIRT,TILE_DIRT,TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER,TILE_DIRT,TILE_DIRT,TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
-      [TILE_BOULDER,TILE_DIRT,TILE_DIRT,TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
-      [TILE_BOULDER,TILE_BOULDER,TILE_BOULDER,TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
+      [TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
+      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
+      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
+      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
+      [TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
     ]
   )
 
@@ -94,6 +100,23 @@ function TextMap() {
     };
   });
 
+  useEffect(() => {
+    setPlayerSprite(getPlayerIconFromDirection(currentUserDirection))
+  }, [currentUserDirection])
+
+  const getPlayerIconFromDirection = (direction) => {
+    switch (direction) {
+      case DIRECTION_UP: return UNICODE_UP_ARROW;
+      case DIRECTION_DOWN: return UNICODE_DOWN_ARROW;
+      case DIRECTION_LEFT: return UNICODE_RIGHT_ARROW;
+      case DIRECTION_RIGHT: return UNICODE_LEFT_ARROW;
+      default: {
+        console.log("unknown player direction")
+        return UNICODE_DOWN_ARROW;
+      }
+    }
+  }
+
   const applyForceDirection = ({ mapTiles, userCoordinates }) => {
     const tileBeneathPlayer = getTileFromCoordinates({ tiles: mapTiles, x: userCoordinates.x, y: userCoordinates.y })
     if (tileBeneathPlayer.forceDirection) {
@@ -113,16 +136,16 @@ function TextMap() {
     for (
       let xIdx = topLeftCoordinates.x;
       xIdx <= topLeftCoordinates.x + VIEWPORT_HEIGHT &&
-      xIdx < mapTiles.length; 
+      xIdx < mapTiles.length;
       xIdx++
-      ) {
+    ) {
       let line = []
       for (
         let yIdx = topLeftCoordinates.y;
         yIdx <= topLeftCoordinates.y + VIEWPORT_WIDTH &&
         yIdx <= mapTiles[0].length;
         yIdx++
-        ) {
+      ) {
         let item = getTileFromCoordinates({ tiles: itemTiles, x: xIdx, y: yIdx })
         let cell = getTileFromCoordinates({ tiles: mapTiles, x: xIdx, y: yIdx })
 
@@ -131,7 +154,9 @@ function TextMap() {
         }
 
         if (yIdx === userCoordinates.y && xIdx === userCoordinates.x) {
-          line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`} style={{ backgroundColor: cell.backgroundColor }}>@</div>);
+          line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`} style={{ backgroundColor: cell.backgroundColor }}>
+            {playerSprite}
+          </div>);
         } else if (item && !item.isHidden && !item.pickedUp) {
           line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`} style={{ backgroundColor: cell.backgroundColor }}>o</div>);
         } else {
@@ -151,18 +176,23 @@ function TextMap() {
     }
 
     if (input.type === INPUT_TYPE_DIRECTION) { // arrow keys
+      // const isContinuingInSameDirection = currentUserDirection === input.direction;
+
       setCurrentUserDirection(input.direction)
+      // setPlayerSprite(getPlayerIconFromDirection(input.direction))
+
       const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: input.direction })
       const tif = getTileFromCoordinates({ tiles: mapTiles, x: cif.x, y: cif.y });
       const canWalk = getCanWalkFromTile({ tileInFront: tif, coordinatesInFront: cif, direction: input.direction });
 
       if (!canWalk) {
-        return;
+        return
       }
 
       if (mapTiles[cif.x][cif.y].canWalk) {
         setUserCoordinates(cif)
       }
+
     } else if (input.type === INPUT_TYPE_ACTION) {
       const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
       performAction({ userCoordinates, coordinatesInFront: cif, action: input })
@@ -172,24 +202,19 @@ function TextMap() {
   const scrollMap = (topLeftCoordinates, userCoordinates) => {
     let tmpTopLeftX = topLeftCoordinates.x, tmpTopLeftY = topLeftCoordinates.y;
 
-    console.log({user: userCoordinates.y, topLeft: topLeftCoordinates.y, diff: (userCoordinates.y - topLeftCoordinates.y)})
+    // console.log({user: userCoordinates.y, topLeft: topLeftCoordinates.y, diff: (userCoordinates.y - topLeftCoordinates.y)})
     if (userCoordinates.x - topLeftCoordinates.x > VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftX++
-      console.log("scroll down")
-    } 
+    }
     if (userCoordinates.x - topLeftCoordinates.x < VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftX--
-      console.log("scroll up")
-    } 
+    }
     if (userCoordinates.y - topLeftCoordinates.y > VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftY++
-      console.log("scroll right")
     }
-     if (userCoordinates.y - topLeftCoordinates.y < VIEWPORT_SCROLL_THRESHOLD) {
+    if (userCoordinates.y - topLeftCoordinates.y < VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftY--
-      console.log("scroll left")
     }
-
 
     if (tmpTopLeftX < 0) {
       tmpTopLeftX = 0;
@@ -197,7 +222,7 @@ function TextMap() {
     if (tmpTopLeftY < 0) {
       tmpTopLeftY = 0;
     }
-    setTopLeftCoordinates({x: tmpTopLeftX, y: tmpTopLeftY})
+    setTopLeftCoordinates({ x: tmpTopLeftX, y: tmpTopLeftY })
   }
 
   const performAction = ({ userCoordinates, coordinatesInFront, action }) => {
