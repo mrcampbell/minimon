@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './TextMap.css'
+import {Map} from '../../service/map-import';
 
 const VIEWPORT_SCROLL_THRESHOLD = 3;
 const VIEWPORT_HEIGHT = 8;
 const VIEWPORT_WIDTH = 8;
 
-const DIRECTION_UP = "DIRECTION_UP"
-const DIRECTION_DOWN = "DIRECTION_DOWN"
-const DIRECTION_LEFT = "DIRECTION_LEFT"
-const DIRECTION_RIGHT = "DIRECTION_RIGHT"
+export const DIRECTION_UP = "DIRECTION_UP"
+export const DIRECTION_DOWN = "DIRECTION_DOWN"
+export const DIRECTION_LEFT = "DIRECTION_LEFT"
+export const DIRECTION_RIGHT = "DIRECTION_RIGHT"
 
 const UNICODE_UP_ARROW = "▲"
 const UNICODE_DOWN_ARROW = "▼"
@@ -24,65 +25,19 @@ const INPUT_DIRECTION_RIGHT = { key: "INPUT_DIRECTION_RIGHT", type: INPUT_TYPE_D
 const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACTION }
 
 
-const TILE_BOULDER = { backgroundColor: '#A52A2A', letter: <div style={{ backgroundColor: '#A52A2A' }}>B</div>, canWalk: false }
-const TILE_SHORT_GRASS = { backgroundColor: '#3CB371', letter: <div style={{ backgroundColor: '#3CB371' }}>,</div>, canWalk: true }
-const TILE_TALL_GRASS = { backgroundColor: '#3CB371', letter: <div style={{ backgroundColor: '#3CB371' }}>w</div>, canWalk: true }
-const TILE_DIRT = { backgroundColor: '#FFF8DC', letter: <div style={{ backgroundColor: '#FFF8DC' }}>.</div>, canWalk: true }
-const TILE_LEDGE = { backgroundColor: '#FFF8DC', letter: <div style={{ backgroundColor: '#FFF8DC' }}>_</div>, canWalk: true, isLedge: true, forceDirection: DIRECTION_DOWN }
-
-
-const POTION_4_4 = { itemType: 'potion', coordinates: { x: 4, y: 4 }, pickedUp: false, isHidden: false }
-
 function TextMap() {
+
+  const map = new Map();
 
   const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
   const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
   const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
   const [playerSprite, setPlayerSprite] = useState(UNICODE_DOWN_ARROW)
 
-  const [mapTiles, setMapTiles] = useState(
-    [
-      [TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_SHORT_GRASS, TILE_DIRT, TILE_DIRT, TILE_LEDGE, TILE_LEDGE, TILE_LEDGE, TILE_BOULDER],
-      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_BOULDER],
-      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
-      [TILE_BOULDER, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_TALL_GRASS, TILE_BOULDER],
-      [TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER, TILE_BOULDER],
-    ]
-  )
+  let cells = map.getMapCells()
+  const [mapTiles, setMapTiles] = useState(cells)
 
-  const [itemTiles, setItemTiles] = useState(
-    [
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, POTION_4_4, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-      [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,],
-    ]
-  )
+  const [itemTiles, setItemTiles] = useState(map.getItemCells())
 
   const [mapElements, setMapElements] = useState([])
 
@@ -160,7 +115,7 @@ function TextMap() {
         } else if (item && !item.isHidden && !item.pickedUp) {
           line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`} style={{ backgroundColor: cell.backgroundColor }}>o</div>);
         } else {
-          line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`}>{cell.letter}</div>);
+          line.push(<div className="tile-wrapper" key={`${xIdx}-${yIdx}`}>{cell.element}</div>);
         }
       }
       elements.push(<div key={`${xIdx}-row`} className="tile-row">{line}</div>)
