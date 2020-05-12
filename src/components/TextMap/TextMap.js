@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './TextMap.css'
-import {Map} from '../../service/map-import';
+import { Map } from '../../service/map-import';
+import { Dialog } from '../Dialog/Dialog';
+
 
 const VIEWPORT_SCROLL_THRESHOLD = 3;
 const VIEWPORT_HEIGHT = 8;
@@ -33,6 +35,8 @@ function TextMap() {
   const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
   const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
   const [playerSprite, setPlayerSprite] = useState(UNICODE_DOWN_ARROW)
+  const [dialogQueue, setDialogQueue] = useState(["hey", "you!"]);
+  const [dialogIsHidden, setDialogIsHidden] = useState(false);
 
   let cells = map.getMapCells()
   const [mapTiles, setMapTiles] = useState(cells)
@@ -149,6 +153,15 @@ function TextMap() {
       }
 
     } else if (input.type === INPUT_TYPE_ACTION) {
+      if (input == INPUT_ACTION_PRIMARY) {
+        if (dialogQueue.length > 0) {
+          dialogQueue.shift()
+          setDialogQueue(dialogQueue.slice())
+        } if (dialogQueue.length == 0) {
+          setDialogIsHidden(true)
+        }
+      }
+
       const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
       performAction({ userCoordinates, coordinatesInFront: cif, action: input })
     }
@@ -196,6 +209,7 @@ function TextMap() {
       row.forEach(cell => {
         if (x == coordinatesInFront.x && y == coordinatesInFront.y) {
           cell.pickedUp = true;
+          dialogQueue.push(`You found a(n) ${cell.itemType}`)
         }
         newRow.push(cell)
         y++;
@@ -257,10 +271,15 @@ function TextMap() {
   }
 
   return (
-    <div className="TextMap">
-      <code>
-        {mapElements}
-      </code>
+    <div className="TextGameWrapper">
+      <div className="TextMap">
+        <code>
+          {mapElements}
+        </code>
+      </div>
+      <div className="dialog-wrapper">
+        <Dialog message={dialogQueue[0]}/>
+      </div>
     </div>
   );
 }

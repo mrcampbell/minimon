@@ -1,3 +1,12 @@
+.TextGameWrapper {
+  position: relative;
+  outline: 1px solid red;
+  width: 144px;
+}
+/* .TextGameWrapper > * {
+  float: left;
+} */
+
 .TextMap .tile-wrapper {
   width: 1em;
 }
@@ -10,4 +19,11 @@
 .TextMap .tile-map-wrapper {
   display: flex;
   flex-direction: column;
+}
+
+.dialog-wrapper {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
