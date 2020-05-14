@@ -157,11 +157,11 @@ function TextMap() {
       }
 
     } else if (input.type === INPUT_TYPE_ACTION) {
-      if (input == INPUT_ACTION_PRIMARY) {
+      if (input === INPUT_ACTION_PRIMARY) {
         if (dialogQueue.length > 0) {
           dialogQueue.shift()
           setDialogQueue(dialogQueue.slice())
-        } if (dialogQueue.length == 0) {
+        } if (dialogQueue.length === 0) {
           setDialogIsHidden(true)
         }
       }
@@ -211,7 +211,7 @@ function TextMap() {
     itemTiles.forEach(row => {
       let newRow = [];
       row.forEach(cell => {
-        if (x == coordinatesInFront.x && y == coordinatesInFront.y) {
+        if (x === coordinatesInFront.x && y === coordinatesInFront.y) {
           cell.pickedUp = true;
           setDialogIsHidden(false)
           dialogQueue.push(`You found a(n) ${cell.itemType}!`)
