@@ -135,6 +135,10 @@ function TextMap() {
     }
 
     if (input.type === INPUT_TYPE_DIRECTION) { // arrow keys
+      if (!dialogIsHidden) {
+        return; // movement locked when dialog is open
+      }
+
       // const isContinuingInSameDirection = currentUserDirection === input.direction;
 
       setCurrentUserDirection(input.direction)
@@ -196,7 +200,7 @@ function TextMap() {
   const performAction = ({ userCoordinates, coordinatesInFront, action }) => {
     // check if item:
     let item = getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
-    if (item) {
+    if (item && !item.pickedUp) {
       pickupItem({ itemTiles, coordinatesInFront })
     }
   }
@@ -209,7 +213,8 @@ function TextMap() {
       row.forEach(cell => {
         if (x == coordinatesInFront.x && y == coordinatesInFront.y) {
           cell.pickedUp = true;
-          dialogQueue.push(`You found a(n) ${cell.itemType}`)
+          setDialogIsHidden(false)
+          dialogQueue.push(`You found a(n) ${cell.itemType}!`)
         }
         newRow.push(cell)
         y++;
