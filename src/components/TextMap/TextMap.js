@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './TextMap.css'
-import { Map } from '../../service/map-import';
+import { Map, MapService } from '../../service/map-import';
 import { Dialog } from '../Dialog/Dialog';
 
 
@@ -29,28 +29,43 @@ const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACT
 
 function TextMap() {
 
-  const map = new Map();
 
+  const mapService = new MapService();
+
+  // todo: extract
+  const [mapID, setMapID] = useState('A');
+  const [mapTiles, setMapTiles] = useState([])
+  const [itemTiles, setItemTiles] = useState([])
+  const [portalTiles, setPortalTiles] = useState([])
   const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
   const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
+  
   const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
   const [playerSprite, setPlayerSprite] = useState(UNICODE_DOWN_ARROW)
-  const [dialogQueue, setDialogQueue] = useState(["hey", "you!"]);
-  const [dialogIsHidden, setDialogIsHidden] = useState(false);
-
-  let cells = map.getMapCells()
-  const [mapTiles, setMapTiles] = useState(cells)
-
-  const [itemTiles, setItemTiles] = useState(map.getItemCells())
+  const [justTeleported, setJustTeleported] = useState(false); // this is to keep from infinite looping in portals
+  // to "setMap"
+  
+  const [dialogQueue, setDialogQueue] = useState([]);
+  const [dialogIsHidden, setDialogIsHidden] = useState(true);
 
   const [mapElements, setMapElements] = useState([])
 
   useEffect(() => {
-    applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
+    const map = mapService.getMap(mapID);
+    console.log(map)
+    let cells = map.getMapCells();
+    setMapTiles(map.getMapCells())
+    setItemTiles(map.getItemCells())
+    setPortalTiles(map.portals)
+  }, [mapID])
+
+  useEffect(() => {
+    // applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
     renderMap(mapTiles, itemTiles, userCoordinates);
     scrollMap(topLeftCoordinates, userCoordinates);
-
-  }, [mapTiles, userCoordinates, itemTiles])
+    applyPortal(userCoordinates);
+    setTopLeftCoordinates({x: 0, y: 0}) // todo: tie to map values?
+  }, [mapTiles, userCoordinates, itemTiles, portalTiles])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -62,6 +77,21 @@ function TextMap() {
   useEffect(() => {
     setPlayerSprite(getPlayerIconFromDirection(currentUserDirection))
   }, [currentUserDirection])
+
+  const applyPortal = (userCoordinates) => {
+      portalTiles.forEach(p => {
+        if (
+          p.coordinates.x === userCoordinates.x 
+          && p.coordinates.y === userCoordinates.y
+          && !justTeleported // if you just arrived, don't teleport back
+          ) {
+          setMapID(p.destination.map_id)
+          setUserCoordinates(p.destination.coordinates)
+          setJustTeleported(true)
+        }
+      })
+  }
+
 
   const getPlayerIconFromDirection = (direction) => {
     switch (direction) {
@@ -152,6 +182,9 @@ function TextMap() {
         return
       }
 
+      if (justTeleported) {
+        setJustTeleported(false)
+      }
       if (mapTiles[cif.x][cif.y].canWalk) {
         setUserCoordinates(cif)
       }

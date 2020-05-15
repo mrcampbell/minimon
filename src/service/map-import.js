@@ -11,8 +11,10 @@ const VERTICAL_FENCE = "vf"
 const HORIZONTAL_FENCE = "hf"
 const LADDER = "la";
 
-export class Map {
-  constructor() {
+export class MapService {
+
+  // these are used globally
+  initializeCellTypes() {
     this.cell_types = {
       [LADDER]: {
         backgroundColor: "#FFF8DC",
@@ -58,50 +60,110 @@ export class Map {
         canWalk: false,
       }
     }
+  }
 
-    this.items = [
-      { itemType: 'potion', coordinates: { x: 4, y: 4 }, pickedUp: false, isHidden: false },
-    ]
-
-    this.cells = [
-      [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, LADDER, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, VERTICAL_FENCE, LEDGE, LEDGE, LEDGE, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
-      [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, TALL_GRASS, TALL_GRASS, BOULDER],
-      [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, TALL_GRASS, TALL_GRASS, TALL_GRASS, TALL_GRASS, BOULDER],
-      [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
-    ];
-    this.encounter_types = {
-      1: {
-        breed_id: 25,
-        breed_name: "Pikachu",
-        level_range: {
-          min: 10,
-          max: 13,
+  initalizeMapA() {
+    this.maps['A'] = {
+      items: [
+        { itemType: 'potion', coordinates: { x: 4, y: 4 }, pickedUp: false, isHidden: false },
+      ],
+      portals: [
+        {
+          coordinates: { x: 5, y: 5 },
+          destination: {
+            map_id: 'B',
+            coordinates: { x: 2, y: 1 }
+          },
+        }
+      ],
+      cells: [
+        [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, LADDER, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, VERTICAL_FENCE, LEDGE, LEDGE, LEDGE, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, DIRT, TALL_GRASS, TALL_GRASS, BOULDER],
+        [BOULDER, DIRT, DIRT, DIRT, DIRT, DIRT, TALL_GRASS, TALL_GRASS, TALL_GRASS, TALL_GRASS, BOULDER],
+        [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
+      ],
+      encounter_types: {
+        1: {
+          breed_id: 25,
+          breed_name: "Pikachu",
+          level_range: {
+            min: 10,
+            max: 13,
+          },
+          occurance_weight: 10,
         },
-        occurance_weight: 10,
-      },
-      2: {
-        breed_id: 1,
-        breed_name: "Bulbasaur",
-        level_range: {
-          min: 9,
-          max: 14,
-        },
-        occurance_weight: 50,
+        2: {
+          breed_id: 1,
+          breed_name: "Bulbasaur",
+          level_range: {
+            min: 9,
+            max: 14,
+          },
+          occurance_weight: 50,
+        }
       }
     }
+  }
+
+  initalizeMapB() {
+    this.maps['B'] = {
+      items: [
+        { itemType: 'potion', coordinates: { x: 2, y: 2 }, pickedUp: false, isHidden: false },
+      ],
+      portals: [
+        {
+          coordinates: { x: 2, y: 1 },
+          destination: {
+            map_id: 'A',
+            coordinates: { x: 5, y: 5 }
+          },
+        }
+      ],
+      cells: [
+        [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
+        [BOULDER, DIRT, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, LADDER, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, BOULDER, BOULDER, BOULDER, BOULDER, BOULDER],
+      ],
+      encounter_types: {},
+    }
+  }
+
+  constructor() {
+    this.maps = [];
+    this.initializeCellTypes();
+    this.initalizeMapA();
+    this.initalizeMapB();
+  }
+  getMap(id) {
+    const data = this.maps[id];
+    if (data !== undefined) {
+      return new Map(this.cell_types, data.cells, data.items, data.encounter_types, data.portals)
+    }
+  }
+}
+
+export class Map {
+  constructor(cell_types, cells, items, encounter_types, portals) {
+    this.cell_types = cell_types;
+    this.cells = cells;
+    this.items = items;
+    this.encounter_types = encounter_types;
+    this.portals = portals;
+
     this.encounters = []; // set in compileEncounters
 
     this.compileEncounters()
@@ -113,10 +175,10 @@ export class Map {
     // get sum of occurance weights
     for (const [key, value] of Object.entries(this.encounter_types)) {
       totalOccuranceWeight += value.occurance_weight;
-    }  
+    }
     let occuranceChanceIdx = 0;
     let encounterRatio = 100 / totalOccuranceWeight;
-    
+
     for (const [key, value] of Object.entries(this.encounter_types)) {
       this.encounters.push({
         occurance_value: Math.ceil(encounterRatio * value.occurance_weight + occuranceChanceIdx),
@@ -126,9 +188,7 @@ export class Map {
       })
 
       occuranceChanceIdx += encounterRatio;
-    }  
-
-    console.log(this.encounters)
+    }
   }
 
   getEncounter(encounterVariable) {
@@ -151,6 +211,7 @@ export class Map {
     let result = [];
     const x = this.cells.length;
     const y = this.cells[0].length;
+    console.log(x, y)
 
     for (let xIdx = 0; xIdx < x; xIdx++) {
       let line = [];
