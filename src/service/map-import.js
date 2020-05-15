@@ -10,53 +10,99 @@ const LEDGE = "l";
 const VERTICAL_FENCE = "vf"
 const HORIZONTAL_FENCE = "hf"
 const LADDER = "la";
+const SIGN_1 = "sign_1"
+const SIGN_2 = "sign_2"
 
 export class MapService {
 
   // these are used globally
   initializeCellTypes() {
     this.cell_types = {
+      [SIGN_1]: {
+        backgroundColor: "#FFF",
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF' }}>
+          <span className="tooltiptext">Sign</span>
+          &#9633;
+          </div>,
+        canWalk: false,
+        isReadable: true,
+        message: ["I'm a Sign!"],
+      },
+      [SIGN_2]: {
+        backgroundColor: "#FFF",
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF' }}>
+          <span className="tooltiptext">Sign</span>
+          &#9633;
+          </div>,
+        canWalk: false,
+        isReadable: true,
+        message: ["I'm a", "multiline", "sign"],
+      },
       [LADDER]: {
         backgroundColor: "#FFF8DC",
-        element: <div style={{ backgroundColor: '#FFF8DC' }}>H</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF8DC' }}>
+          <span className="tooltiptext">Ladder</span>
+           H
+          </div>,
         canWalk: true,
       },
       [BOULDER]: {
         backgroundColor: "#A52A2A",
-        element: <div style={{ backgroundColor: '#A52A2A' }}>B</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#A52A2A' }}>
+          <span className="tooltiptext">Boulders</span>
+           B
+           </div>,
         canWalk: false,
       },
       [SHORT_GRASS]: {
         backgroundColor: "#3CB371",
-        element: <div style={{ backgroundColor: '#3CB371' }}>,</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#3CB371' }}>
+          <span className="tooltiptext">Short Grass</span>
+           ,
+        </div>,
         canWalk: true,
       },
       [DIRT]: {
         backgroundColor: "#FFF8DC",
-        element: <div style={{ backgroundColor: '#FFF8DC' }}>.</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF8DC' }}>
+          <span className="tooltiptext">Dirt</span>
+          ░
+      </div>,
         canWalk: true,
       },
       [LEDGE]: {
         backgroundColor: '#FFF8DC',
-        element: <div style={{ backgroundColor: '#FFF8DC' }}>_</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF8DC' }}>
+          <span className="tooltiptext">Ledge</span>
+           _
+        </div>,
         canWalk: true,
         isLedge: true,
         forceDirection: DIRECTION_DOWN,
       },
       [TALL_GRASS]: {
         backgroundColor: '#3CB371',
-        element: <div style={{ backgroundColor: '#3CB371' }}>w</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#3CB371' }}>
+          <span className="tooltiptext">Tall Grass</span>
+           w
+        </div>,
         canWalk: true,
         encounterChance: 15, // out of a hundred that you'll encounter a wild pokemon
       },
       [VERTICAL_FENCE]: {
         backgroundColor: '#FFF',
-        element: <div style={{ backgroundColor: '#FFF' }}>|</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF' }}>
+          <span className="tooltiptext">Fence</span>
+          ║
+        </div>,
         canWalk: false,
       },
       [HORIZONTAL_FENCE]: {
         backgroundColor: '#FFF',
-        element: <div style={{ backgroundColor: '#FFF' }}>-</div>,
+        element: <div className="tile tooltip" style={{ backgroundColor: '#FFF' }}>
+          <span className="tooltiptext">Fence</span>
+          ═
+        </div>,
         canWalk: false,
       }
     }
@@ -81,7 +127,7 @@ export class MapService {
         [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, BOULDER],
         [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
         [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
-        [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
+        [BOULDER, SIGN_1, SIGN_2, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
         [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, LADDER, VERTICAL_FENCE, DIRT, DIRT, DIRT, BOULDER],
         [BOULDER, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, HORIZONTAL_FENCE, VERTICAL_FENCE, LEDGE, LEDGE, LEDGE, BOULDER],
         [BOULDER, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, SHORT_GRASS, DIRT, DIRT, DIRT, DIRT, DIRT, BOULDER],

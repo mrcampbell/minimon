@@ -57,14 +57,15 @@ function TextMap() {
     setMapTiles(map.getMapCells())
     setItemTiles(map.getItemCells())
     setPortalTiles(map.portals)
+    setTopLeftCoordinates({x: 0, y: 0}) // todo: tie to map values?
   }, [mapID])
 
   useEffect(() => {
     // applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
     renderMap(mapTiles, itemTiles, userCoordinates);
+    console.log("scrollin")
     scrollMap(topLeftCoordinates, userCoordinates);
     applyPortal(userCoordinates);
-    setTopLeftCoordinates({x: 0, y: 0}) // todo: tie to map values?
   }, [mapTiles, userCoordinates, itemTiles, portalTiles])
 
   useEffect(() => {
@@ -194,13 +195,16 @@ function TextMap() {
         if (dialogQueue.length > 0) {
           dialogQueue.shift()
           setDialogQueue(dialogQueue.slice())
-        } if (dialogQueue.length === 0) {
+        } else {
+          const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
+          performAction({ userCoordinates, coordinatesInFront: cif, action: input })
+        }
+        if (dialogQueue.length === 0) {
           setDialogIsHidden(true)
         }
       }
 
-      const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
-      performAction({ userCoordinates, coordinatesInFront: cif, action: input })
+     
     }
   }
 
@@ -235,6 +239,14 @@ function TextMap() {
     let item = getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
     if (item && !item.pickedUp) {
       pickupItem({ itemTiles, coordinatesInFront })
+      return;
+    }
+
+    let tile = getTileFromCoordinates({ tiles: mapTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
+    console.log(tile)
+    if (tile.isReadable && tile.message && tile.message.length > 0) {
+      setDialogQueue(tile.message.slice())
+      setDialogIsHidden(false)
     }
   }
 
