@@ -29,7 +29,7 @@ const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACT
 
 function TextMap() {
 
-  const [{count, userCoordinates}, {add, setUserCoordinates}] = useStore();
+  const [{count, userCoordinates, dialogueQueue, dialogueIsHidden}, {add, setUserCoordinates,appendToDialogQueue, advanceDialogue}] = useStore();
 
   const mapService = new MapService();
 
@@ -46,8 +46,7 @@ function TextMap() {
   const [justTeleported, setJustTeleported] = useState(false); // this is to keep from infinite looping in portals
   // to "setMap"
   
-  const [dialogQueue, setDialogQueue] = useState([]);
-  const [dialogIsHidden, setDialogIsHidden] = useState(true);
+  console.log(dialogueQueue, dialogueIsHidden)
 
   const [mapElements, setMapElements] = useState([])
 
@@ -168,7 +167,7 @@ function TextMap() {
     }
 
     if (input.type === INPUT_TYPE_DIRECTION) { // arrow keys
-      if (!dialogIsHidden) {
+      if (!dialogueIsHidden) {
         return; // movement locked when dialog is open
       }
 
@@ -194,15 +193,11 @@ function TextMap() {
 
     } else if (input.type === INPUT_TYPE_ACTION) {
       if (input === INPUT_ACTION_PRIMARY) {
-        if (dialogQueue.length > 0) {
-          dialogQueue.shift()
-          setDialogQueue(dialogQueue.slice())
+        if (dialogueQueue.length > 0) {
+          advanceDialogue()
         } else {
           const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
           performAction({ userCoordinates, coordinatesInFront: cif, action: input })
-        }
-        if (dialogQueue.length === 0) {
-          setDialogIsHidden(true)
         }
       }
 
@@ -246,8 +241,7 @@ function TextMap() {
 
     let tile = getTileFromCoordinates({ tiles: mapTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
     if (tile.isReadable && tile.message && tile.message.length > 0) {
-      setDialogQueue(tile.message.slice())
-      setDialogIsHidden(false)
+      appendToDialogQueue(tile.message.slice())
     }
   }
 
@@ -259,8 +253,7 @@ function TextMap() {
       row.forEach(cell => {
         if (x === coordinatesInFront.x && y === coordinatesInFront.y) {
           cell.pickedUp = true;
-          setDialogIsHidden(false)
-          dialogQueue.push(`You found a(n) ${cell.itemType}!`)
+          appendToDialogQueue(`You found a(n) ${cell.itemType}!`)
         }
         newRow.push(cell)
         y++;
@@ -330,7 +323,7 @@ function TextMap() {
         </code>
       </div>
       <div className="dialog-wrapper">
-        <Dialog message={dialogQueue[0]}/>
+        <Dialog message={dialogueQueue[0]}/>
       </div>
     </div>
   );
