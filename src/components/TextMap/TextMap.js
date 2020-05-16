@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './TextMap.css'
 import { Map, MapService } from '../../service/map-import';
 import { Dialog } from '../Dialog/Dialog';
+import { useStore, withStore } from '../../store/store';
 
 
 const VIEWPORT_SCROLL_THRESHOLD = 3;
@@ -26,9 +27,9 @@ const INPUT_DIRECTION_LEFT = { key: "INPUT_DIRECTION_LEFT", type: INPUT_TYPE_DIR
 const INPUT_DIRECTION_RIGHT = { key: "INPUT_DIRECTION_RIGHT", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_RIGHT }
 const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACTION }
 
-
 function TextMap() {
 
+  const [{count, userCoordinates}, {add, setUserCoordinates}] = useStore();
 
   const mapService = new MapService();
 
@@ -37,7 +38,7 @@ function TextMap() {
   const [mapTiles, setMapTiles] = useState([])
   const [itemTiles, setItemTiles] = useState([])
   const [portalTiles, setPortalTiles] = useState([])
-  const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
+  // const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
   const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
   
   const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
@@ -58,12 +59,13 @@ function TextMap() {
     setItemTiles(map.getItemCells())
     setPortalTiles(map.portals)
     setTopLeftCoordinates({x: 0, y: 0}) // todo: tie to map values?
+  add(2);
+
   }, [mapID])
 
   useEffect(() => {
     // applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
     renderMap(mapTiles, itemTiles, userCoordinates);
-    console.log("scrollin")
     scrollMap(topLeftCoordinates, userCoordinates);
     applyPortal(userCoordinates);
   }, [mapTiles, userCoordinates, itemTiles, portalTiles])
@@ -243,7 +245,6 @@ function TextMap() {
     }
 
     let tile = getTileFromCoordinates({ tiles: mapTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
-    console.log(tile)
     if (tile.isReadable && tile.message && tile.message.length > 0) {
       setDialogQueue(tile.message.slice())
       setDialogIsHidden(false)
@@ -322,6 +323,7 @@ function TextMap() {
 
   return (
     <div className="TextGameWrapper">
+      <h1>{count}</h1>
       <div className="TextMap">
         <code>
           {mapElements}
@@ -334,4 +336,4 @@ function TextMap() {
   );
 }
 
-export default TextMap;
+export default withStore(TextMap);
