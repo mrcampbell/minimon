@@ -24,7 +24,7 @@ const server = new ApolloServer({
     context,
   }),
   playground: {
-    endpoint: "/graphql"
+    endpoint: "/.netlify/functions/graphql"
   }
 });
 
