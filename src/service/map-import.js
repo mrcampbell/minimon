@@ -19,8 +19,8 @@ export class MapService {
     switch (direction) {
       case DIRECTION_UP: return { x: x - 1, y }
       case DIRECTION_DOWN: return { x: x + 1, y }
-      case DIRECTION_LEFT: return { x, y: y + 1 }
-      case DIRECTION_RIGHT: return { x, y: y - 1 }
+      case DIRECTION_LEFT: return { x, y: y - 1 }
+      case DIRECTION_RIGHT: return { x, y: y + 1 }
 
       default: console.error('nope', direction);
     }

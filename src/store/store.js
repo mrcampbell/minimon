@@ -1,5 +1,5 @@
 import React from 'react';
-import { DIRECTION_DOWN, UNICODE_DOWN_ARROW, INPUT_TYPE_DIRECTION } from '../constants';
+import { DIRECTION_DOWN, UNICODE_DOWN_ARROW, INPUT_TYPE_DIRECTION, DIRECTION_UP, DIRECTION_LEFT, DIRECTION_RIGHT, UNICODE_UP_ARROW, UNICODE_RIGHT_ARROW, UNICODE_LEFT_ARROW } from '../constants';
 import { MapService } from '../service/map-import';
 
 const StoreContext = React.createContext({});
@@ -119,29 +119,27 @@ const [StoreProvider, useStore] = makeStore({
         if (!state.dialogueIsHidden) {
           return; // movement locked when dialog is open
         }
+
         let currentUserDirection = input.direction;
+        let playerSprite = getPlayerIconFromDirection(input.direction)
+        console.log(playerSprite)
 
-        // this.setCurrentUserDirection(state, input.direction)
         const cif = MapService.getCoordinatesInDirection({ x: state.userCoordinates.x, y: state.userCoordinates.y, direction: input.direction })
-
-        console.log("cif", cif)
-        console.log({ x: state.userCoordinates.x, y: state.userCoordinates.y, direction: input.direction })
-        console.log({ tiles: state.mapTiles, x: cif.x, y: cif.y })
         const tif = MapService.getTileFromCoordinates({ tiles: state.mapTiles, x: cif.x, y: cif.y });
-        console.log("tif", tif)
         const canWalk = MapService.getCanWalkFromTile({ tileInFront: tif, coordinatesInFront: cif, direction: input.direction, itemTiles: state.itemTiles });
 
-        console.log(canWalk)
         if (!canWalk) {
-          return state;
+          return {...state, playerSprite };
         }
 
-        //   if (justTeleported) {
-        //     setJustTeleported(false)
-        //   }
-        //   if (mapTiles[cif.x][cif.y].canWalk) {
-        //     setUserCoordinates(cif)
-        //   }
+        let justTeleported;
+          if (state.justTeleported) {
+            justTeleported = false;
+          }
+          let userCoordinates = Object.assign({}, state.userCoordinates);
+          if (state.mapTiles[cif.x][cif.y].canWalk) {
+            userCoordinates = ({x: cif.x, y: cif.y})
+          }
 
         // } else if (input.type === INPUT_TYPE_ACTION) {
         //   if (input === INPUT_ACTION_PRIMARY) {
@@ -152,7 +150,7 @@ const [StoreProvider, useStore] = makeStore({
         //       performAction({ userCoordinates, coordinatesInFront: cif, action: input })
         //     }
         //   }
-        state = { ...state, currentUserDirection };
+        state = { ...state, currentUserDirection, justTeleported, userCoordinates, playerSprite };
         return state;
       } 
       return state
@@ -175,4 +173,18 @@ export const withStore = (Component) => {
 export {
   StoreProvider,
   useStore,
+}
+
+// TODO: Move to sprite service?
+const getPlayerIconFromDirection = (direction) => {
+  switch (direction) {
+    case DIRECTION_UP: return UNICODE_UP_ARROW;
+    case DIRECTION_DOWN: return UNICODE_DOWN_ARROW;
+    case DIRECTION_LEFT: return UNICODE_LEFT_ARROW;
+    case DIRECTION_RIGHT: return UNICODE_RIGHT_ARROW;
+    default: {
+      console.log("unknown player direction")
+      return UNICODE_DOWN_ARROW;
+    }
+  }
 }

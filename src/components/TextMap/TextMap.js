@@ -17,12 +17,9 @@ function TextMap() {
     {setUserCoordinates,appendToDialogQueue, advanceDialogue, setMapID, setMapTiles, setItemTiles, setPortalTiles, setCurrentUserDirection, setMapTopLeftCoordinates, setPlayerSprite, setJustTeleported, handleInput}
   ] = useStore();
 
-  const storeRef = React.useRef(useStore());
-
   useEffect(() => {
     setMapID('A');
   }, []);
-
 
   const [mapElements, setMapElements] = useState([])
 
@@ -31,7 +28,7 @@ function TextMap() {
     renderMap(mapTiles, itemTiles, userCoordinates);
     scrollMap(mapTopLeftCoordinates, userCoordinates);
     applyPortal(userCoordinates);
-  }, [mapTiles, userCoordinates, itemTiles, portalTiles])
+  }, [mapTiles, userCoordinates, itemTiles, portalTiles, playerSprite])
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -40,12 +37,6 @@ function TextMap() {
     };
   }, []);
 
-
-  useEffect(() => {
-    let sprite = getPlayerIconFromDirection(currentUserDirection)
-    setPlayerSprite(sprite)
-    console.log('yo', currentUserDirection, sprite)
-  }, [currentUserDirection])
 
   const applyPortal = (userCoordinates) => {
       portalTiles.forEach(p => {
@@ -61,18 +52,6 @@ function TextMap() {
       })
   }
 
-  const getPlayerIconFromDirection = (direction) => {
-    switch (direction) {
-      case DIRECTION_UP: return UNICODE_UP_ARROW;
-      case DIRECTION_DOWN: return UNICODE_DOWN_ARROW;
-      case DIRECTION_LEFT: return UNICODE_RIGHT_ARROW;
-      case DIRECTION_RIGHT: return UNICODE_LEFT_ARROW;
-      default: {
-        console.log("unknown player direction")
-        return UNICODE_DOWN_ARROW;
-      }
-    }
-  }
 
   const applyForceDirection = ({ mapTiles, userCoordinates }) => {
     const tileBeneathPlayer = MapService.getTileFromCoordinates({ tiles: mapTiles, x: userCoordinates.x, y: userCoordinates.y })
@@ -190,14 +169,12 @@ function TextMap() {
     switch (e.keyCode) {
       case 38: return INPUT_DIRECTION_UP;
       case 40: return INPUT_DIRECTION_DOWN;
-      case 39: return INPUT_DIRECTION_LEFT;
-      case 37: return INPUT_DIRECTION_RIGHT;
+      case 39: return INPUT_DIRECTION_RIGHT;
+      case 37: return INPUT_DIRECTION_LEFT;
       case 13: return INPUT_ACTION_PRIMARY;
       default: return undefined;
     }
   }
-
-
 
   const handleKeyDown = (e) => {
     const input = getInputFromKeyPress(e);
