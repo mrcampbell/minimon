@@ -28,4 +28,4 @@ const server = new ApolloServer({
   }
 });
 
-exports.graphqlHandler = server.createHandler();
+exports.handler = server.createHandler();
