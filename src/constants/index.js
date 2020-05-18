@@ -13,3 +13,5 @@ export const INPUT_DIRECTION_DOWN = { key: "INPUT_DIRECTION_DOWN", type: INPUT_T
 export const INPUT_DIRECTION_LEFT = { key: "INPUT_DIRECTION_LEFT", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_LEFT }
 export const INPUT_DIRECTION_RIGHT = { key: "INPUT_DIRECTION_RIGHT", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_RIGHT }
 export const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACTION }
+
+export const BASE_FUNCTIONS_URL = "https://romantic-engelbart-90b7b9.netlify.app/.netlify/functions/"
