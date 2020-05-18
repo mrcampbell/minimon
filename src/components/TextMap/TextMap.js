@@ -1,71 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import './TextMap.css'
-import { Map, MapService } from '../../service/map-import';
 import { Dialog } from '../Dialog/Dialog';
 import { useStore, withStore } from '../../store/store';
-
+import { DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION_RIGHT, UNICODE_UP_ARROW, UNICODE_DOWN_ARROW, UNICODE_LEFT_ARROW, UNICODE_RIGHT_ARROW, INPUT_DIRECTION_DOWN, INPUT_DIRECTION_RIGHT, INPUT_ACTION_PRIMARY, INPUT_DIRECTION_UP, INPUT_DIRECTION_LEFT } from '../../constants';
+import { MapService } from '../../service/map-import';
 
 const VIEWPORT_SCROLL_THRESHOLD = 3;
 const VIEWPORT_HEIGHT = 8;
 const VIEWPORT_WIDTH = 8;
 
-export const DIRECTION_UP = "DIRECTION_UP"
-export const DIRECTION_DOWN = "DIRECTION_DOWN"
-export const DIRECTION_LEFT = "DIRECTION_LEFT"
-export const DIRECTION_RIGHT = "DIRECTION_RIGHT"
-
-const UNICODE_UP_ARROW = "▲"
-const UNICODE_DOWN_ARROW = "▼"
-const UNICODE_LEFT_ARROW = "◀"
-const UNICODE_RIGHT_ARROW = "▶"
-
-const INPUT_TYPE_DIRECTION = "INPUT_TYPE_DIRECTION"
-const INPUT_TYPE_ACTION = "INPUT_TYPE_ACTION"
-const INPUT_DIRECTION_UP = { key: "INPUT_DIRECTION_UP", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_UP }
-const INPUT_DIRECTION_DOWN = { key: "INPUT_DIRECTION_DOWN", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_DOWN }
-const INPUT_DIRECTION_LEFT = { key: "INPUT_DIRECTION_LEFT", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_LEFT }
-const INPUT_DIRECTION_RIGHT = { key: "INPUT_DIRECTION_RIGHT", type: INPUT_TYPE_DIRECTION, direction: DIRECTION_RIGHT }
-const INPUT_ACTION_PRIMARY = { key: "INPUT_ACTION_PRIMARY", type: INPUT_TYPE_ACTION }
 
 function TextMap() {
+  console.log('render')
+  const [
+    {userCoordinates, dialogueQueue, dialogueIsHidden, mapID, mapTiles, itemTiles, portalTiles, currentUserDirection, mapTopLeftCoordinates, playerSprite, justTeleported}, 
+    {setUserCoordinates,appendToDialogQueue, advanceDialogue, setMapID, setMapTiles, setItemTiles, setPortalTiles, setCurrentUserDirection, setMapTopLeftCoordinates, setPlayerSprite, setJustTeleported, handleInput}
+  ] = useStore();
 
-  const [{count, userCoordinates, dialogueQueue, dialogueIsHidden}, {add, setUserCoordinates,appendToDialogQueue, advanceDialogue}] = useStore();
+  const storeRef = React.useRef(useStore());
 
-  const mapService = new MapService();
+  useEffect(() => {
+    setMapID('A');
+  }, []);
 
-  // todo: extract
-  const [mapID, setMapID] = useState('A');
-  const [mapTiles, setMapTiles] = useState([])
-  const [itemTiles, setItemTiles] = useState([])
-  const [portalTiles, setPortalTiles] = useState([])
-  // const [userCoordinates, setUserCoordinates] = useState({ x: 1, y: 1 })
-  const [currentUserDirection, setCurrentUserDirection] = useState(DIRECTION_DOWN)
-  
-  const [topLeftCoordinates, setTopLeftCoordinates] = useState({ x: 0, y: 0 })
-  const [playerSprite, setPlayerSprite] = useState(UNICODE_DOWN_ARROW)
-  const [justTeleported, setJustTeleported] = useState(false); // this is to keep from infinite looping in portals
-  // to "setMap"
-  
-  console.log(dialogueQueue, dialogueIsHidden)
 
   const [mapElements, setMapElements] = useState([])
 
   useEffect(() => {
-    const map = mapService.getMap(mapID);
-    console.log(map)
-    let cells = map.getMapCells();
-    setMapTiles(map.getMapCells())
-    setItemTiles(map.getItemCells())
-    setPortalTiles(map.portals)
-    setTopLeftCoordinates({x: 0, y: 0}) // todo: tie to map values?
-  add(2);
-
-  }, [mapID])
-
-  useEffect(() => {
     // applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
     renderMap(mapTiles, itemTiles, userCoordinates);
-    scrollMap(topLeftCoordinates, userCoordinates);
+    scrollMap(mapTopLeftCoordinates, userCoordinates);
     applyPortal(userCoordinates);
   }, [mapTiles, userCoordinates, itemTiles, portalTiles])
 
@@ -74,10 +38,13 @@ function TextMap() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  });
+  }, []);
+
 
   useEffect(() => {
-    setPlayerSprite(getPlayerIconFromDirection(currentUserDirection))
+    let sprite = getPlayerIconFromDirection(currentUserDirection)
+    setPlayerSprite(sprite)
+    console.log('yo', currentUserDirection, sprite)
   }, [currentUserDirection])
 
   const applyPortal = (userCoordinates) => {
@@ -94,7 +61,6 @@ function TextMap() {
       })
   }
 
-
   const getPlayerIconFromDirection = (direction) => {
     switch (direction) {
       case DIRECTION_UP: return UNICODE_UP_ARROW;
@@ -109,9 +75,9 @@ function TextMap() {
   }
 
   const applyForceDirection = ({ mapTiles, userCoordinates }) => {
-    const tileBeneathPlayer = getTileFromCoordinates({ tiles: mapTiles, x: userCoordinates.x, y: userCoordinates.y })
+    const tileBeneathPlayer = MapService.getTileFromCoordinates({ tiles: mapTiles, x: userCoordinates.x, y: userCoordinates.y })
     if (tileBeneathPlayer.forceDirection) {
-      let targetCoordinates = getCoordinatesInDirection({
+      let targetCoordinates = MapService.getCoordinatesInDirection({
         x: userCoordinates.x,
         y: userCoordinates.y,
         direction: tileBeneathPlayer.forceDirection
@@ -125,20 +91,20 @@ function TextMap() {
   const renderMap = (mapTiles, itemTiles, userCoordinates) => {
     let elements = [];
     for (
-      let xIdx = topLeftCoordinates.x;
-      xIdx <= topLeftCoordinates.x + VIEWPORT_HEIGHT &&
+      let xIdx = mapTopLeftCoordinates.x;
+      xIdx <= mapTopLeftCoordinates.x + VIEWPORT_HEIGHT &&
       xIdx < mapTiles.length;
       xIdx++
     ) {
       let line = []
       for (
-        let yIdx = topLeftCoordinates.y;
-        yIdx <= topLeftCoordinates.y + VIEWPORT_WIDTH &&
+        let yIdx = mapTopLeftCoordinates.y;
+        yIdx <= mapTopLeftCoordinates.y + VIEWPORT_WIDTH &&
         yIdx <= mapTiles[0].length;
         yIdx++
       ) {
-        let item = getTileFromCoordinates({ tiles: itemTiles, x: xIdx, y: yIdx })
-        let cell = getTileFromCoordinates({ tiles: mapTiles, x: xIdx, y: yIdx })
+        let item = MapService.getTileFromCoordinates({ tiles: itemTiles, x: xIdx, y: yIdx })
+        let cell = MapService.getTileFromCoordinates({ tiles: mapTiles, x: xIdx, y: yIdx })
 
         if (!cell) {
           continue;
@@ -159,66 +125,21 @@ function TextMap() {
     setMapElements(<div className="tile-map-wrapper">{elements}</div>)
   }
 
-  const handleKeyDown = (e) => {
-    const input = getInputFromKeyPress(e);
 
-    if (!input) { // unrecognized input
-      return;
-    }
+  const scrollMap = (mapTopLeftCoordinates, userCoordinates) => {
+    let tmpTopLeftX = mapTopLeftCoordinates.x, tmpTopLeftY = mapTopLeftCoordinates.y;
 
-    if (input.type === INPUT_TYPE_DIRECTION) { // arrow keys
-      if (!dialogueIsHidden) {
-        return; // movement locked when dialog is open
-      }
-
-      // const isContinuingInSameDirection = currentUserDirection === input.direction;
-
-      setCurrentUserDirection(input.direction)
-      // setPlayerSprite(getPlayerIconFromDirection(input.direction))
-
-      const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: input.direction })
-      const tif = getTileFromCoordinates({ tiles: mapTiles, x: cif.x, y: cif.y });
-      const canWalk = getCanWalkFromTile({ tileInFront: tif, coordinatesInFront: cif, direction: input.direction });
-
-      if (!canWalk) {
-        return
-      }
-
-      if (justTeleported) {
-        setJustTeleported(false)
-      }
-      if (mapTiles[cif.x][cif.y].canWalk) {
-        setUserCoordinates(cif)
-      }
-
-    } else if (input.type === INPUT_TYPE_ACTION) {
-      if (input === INPUT_ACTION_PRIMARY) {
-        if (dialogueQueue.length > 0) {
-          advanceDialogue()
-        } else {
-          const cif = getCoordinatesInDirection({ x: userCoordinates.x, y: userCoordinates.y, direction: currentUserDirection })
-          performAction({ userCoordinates, coordinatesInFront: cif, action: input })
-        }
-      }
-
-     
-    }
-  }
-
-  const scrollMap = (topLeftCoordinates, userCoordinates) => {
-    let tmpTopLeftX = topLeftCoordinates.x, tmpTopLeftY = topLeftCoordinates.y;
-
-    // console.log({user: userCoordinates.y, topLeft: topLeftCoordinates.y, diff: (userCoordinates.y - topLeftCoordinates.y)})
-    if (userCoordinates.x - topLeftCoordinates.x > VIEWPORT_SCROLL_THRESHOLD) {
+    // console.log({user: userCoordinates.y, topLeft: mapTopLeftCoordinates.y, diff: (userCoordinates.y - mapTopLeftCoordinates.y)})
+    if (userCoordinates.x - mapTopLeftCoordinates.x > VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftX++
     }
-    if (userCoordinates.x - topLeftCoordinates.x < VIEWPORT_SCROLL_THRESHOLD) {
+    if (userCoordinates.x - mapTopLeftCoordinates.x < VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftX--
     }
-    if (userCoordinates.y - topLeftCoordinates.y > VIEWPORT_SCROLL_THRESHOLD) {
+    if (userCoordinates.y - mapTopLeftCoordinates.y > VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftY++
     }
-    if (userCoordinates.y - topLeftCoordinates.y < VIEWPORT_SCROLL_THRESHOLD) {
+    if (userCoordinates.y - mapTopLeftCoordinates.y < VIEWPORT_SCROLL_THRESHOLD) {
       tmpTopLeftY--
     }
 
@@ -228,18 +149,18 @@ function TextMap() {
     if (tmpTopLeftY < 0) {
       tmpTopLeftY = 0;
     }
-    setTopLeftCoordinates({ x: tmpTopLeftX, y: tmpTopLeftY })
+    setMapTopLeftCoordinates({ x: tmpTopLeftX, y: tmpTopLeftY })
   }
 
   const performAction = ({ userCoordinates, coordinatesInFront, action }) => {
     // check if item:
-    let item = getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
+    let item = MapService.getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
     if (item && !item.pickedUp) {
       pickupItem({ itemTiles, coordinatesInFront })
       return;
     }
 
-    let tile = getTileFromCoordinates({ tiles: mapTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
+    let tile = MapService.getTileFromCoordinates({ tiles: mapTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
     if (tile.isReadable && tile.message && tile.message.length > 0) {
       appendToDialogQueue(tile.message.slice())
     }
@@ -276,47 +197,20 @@ function TextMap() {
     }
   }
 
-  const getCoordinatesInDirection = ({ x, y, direction }) => {
-    switch (direction) {
-      case DIRECTION_UP: return { x: x - 1, y }
-      case DIRECTION_DOWN: return { x: x + 1, y }
-      case DIRECTION_LEFT: return { x, y: y + 1 }
-      case DIRECTION_RIGHT: return { x, y: y - 1 }
 
-      default: console.error('nope', direction);
-    }
-  }
 
-  const getCanWalkFromTile = ({ tileInFront, coordinatesInFront, direction }) => {
-    if (!tileInFront.canWalk) {
-      return false;
+  const handleKeyDown = (e) => {
+    const input = getInputFromKeyPress(e);
+
+    if (!input) { // unrecognized input
+      return;
     }
 
-    let item = getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
-
-    if (item && !item.isHidden && !item.pickedUp) {
-      return false
-    }
-
-    if (tileInFront.isLedge && direction != DIRECTION_DOWN) {
-      return false;
-    }
-
-    return true;
-  }
-
-  const getTileFromCoordinates = ({ tiles, x, y, }) => {
-    try {
-      let tile = tiles[x][y];
-      return tile
-    } catch (e) {
-      console.error(e)
-    }
+    handleInput(input)
   }
 
   return (
     <div className="TextGameWrapper">
-      <h1>{count}</h1>
       <div className="TextMap">
         <code>
           {mapElements}

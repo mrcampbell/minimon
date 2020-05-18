@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { DIRECTION_DOWN } from '../components/TextMap/TextMap'
+import { DIRECTION_DOWN, DIRECTION_UP, DIRECTION_LEFT, DIRECTION_RIGHT } from '../constants'
 
 const BOULDER = "b";
 const SHORT_GRASS = "sg";
@@ -14,6 +14,43 @@ const SIGN_1 = "sign_1"
 const SIGN_2 = "sign_2"
 
 export class MapService {
+
+  static getCoordinatesInDirection = ({ x, y, direction }) => {
+    switch (direction) {
+      case DIRECTION_UP: return { x: x - 1, y }
+      case DIRECTION_DOWN: return { x: x + 1, y }
+      case DIRECTION_LEFT: return { x, y: y + 1 }
+      case DIRECTION_RIGHT: return { x, y: y - 1 }
+
+      default: console.error('nope', direction);
+    }
+  }
+  static getTileFromCoordinates = ({ tiles, x, y }) => {
+    try {
+      let tile = tiles[x][y];
+      return tile
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  static getCanWalkFromTile = ({ tileInFront, coordinatesInFront, direction, itemTiles }) => {
+    if (!tileInFront.canWalk) {
+      return false;
+    }
+
+    let item = MapService.getTileFromCoordinates({ tiles: itemTiles, x: coordinatesInFront.x, y: coordinatesInFront.y })
+
+    if (item && !item.isHidden && !item.pickedUp) {
+      return false
+    }
+
+    if (tileInFront.isLedge && direction != DIRECTION_DOWN) {
+      return false;
+    }
+
+    return true;
+  }
 
   // these are used globally
   initializeCellTypes() {
