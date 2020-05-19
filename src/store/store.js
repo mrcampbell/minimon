@@ -7,7 +7,6 @@ const StoreConsumer = StoreContext.Consumer;
 
 const mapService = new MapService();
 
-
 const initialState = {
   mapID: 'A',
   userCoordinates: { x: 1, y: 1 },
@@ -76,7 +75,6 @@ const [StoreProvider, useStore] = makeStore({
       let map = mapService.getMap(mapID);
       let mapTiles = map.getMapCells()
 
-      console.log(mapTiles)
       return {
         ...state,
         mapID,
@@ -121,6 +119,8 @@ const [StoreProvider, useStore] = makeStore({
         }
 
         let currentUserDirection = input.direction;
+        let userCoordinates = Object.assign({}, state.userCoordinates);
+
         let playerSprite = getPlayerIconFromDirection(input.direction)
         console.log(playerSprite)
 
@@ -129,17 +129,35 @@ const [StoreProvider, useStore] = makeStore({
         const canWalk = MapService.getCanWalkFromTile({ tileInFront: tif, coordinatesInFront: cif, direction: input.direction, itemTiles: state.itemTiles });
 
         if (!canWalk) {
-          return {...state, playerSprite };
+          return { ...state, playerSprite };
+        }
+       
+        if (state.mapTiles[cif.x][cif.y].canWalk) {
+          userCoordinates = ({ x: cif.x, y: cif.y })
         }
 
+        let onTeleportationTile = false;
+
+        let mapID = state.mapID;
+        state.portalTiles.forEach(p => {
+          if (
+            p.coordinates.x === userCoordinates.x
+            && p.coordinates.y === userCoordinates.y
+            && !state.justTeleported // if you just arrived, don't teleport back
+          ) {
+            console.log("TELEPORT")
+            mapID = p.destination.map_id
+            userCoordinates = p.destination.coordinates
+            onTeleportationTile = true;
+          }
+        })
         let justTeleported;
+
+        if (!onTeleportationTile) {
           if (state.justTeleported) {
             justTeleported = false;
           }
-          let userCoordinates = Object.assign({}, state.userCoordinates);
-          if (state.mapTiles[cif.x][cif.y].canWalk) {
-            userCoordinates = ({x: cif.x, y: cif.y})
-          }
+        }
 
         // } else if (input.type === INPUT_TYPE_ACTION) {
         //   if (input === INPUT_ACTION_PRIMARY) {
@@ -150,9 +168,9 @@ const [StoreProvider, useStore] = makeStore({
         //       performAction({ userCoordinates, coordinatesInFront: cif, action: input })
         //     }
         //   }
-        state = { ...state, currentUserDirection, justTeleported, userCoordinates, playerSprite };
+        state = { ...state, currentUserDirection, justTeleported, userCoordinates, playerSprite, mapID };
         return state;
-      } 
+      }
       return state
     },
   }

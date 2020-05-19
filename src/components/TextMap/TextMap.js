@@ -18,8 +18,8 @@ function TextMap() {
   ] = useStore();
 
   useEffect(() => {
-    setMapID('A');
-  }, []);
+    setMapID(mapID);
+  }, [mapID]);
 
   const [mapElements, setMapElements] = useState([])
 
@@ -27,7 +27,7 @@ function TextMap() {
     // applyForceDirection({ mapTiles, userCoordinates }); // if on slide tiles, ledge, etc
     renderMap(mapTiles, itemTiles, userCoordinates);
     scrollMap(mapTopLeftCoordinates, userCoordinates);
-    applyPortal(userCoordinates);
+    // applyPortal(userCoordinates);
   }, [mapTiles, userCoordinates, itemTiles, portalTiles, playerSprite])
 
   useEffect(() => {
@@ -36,21 +36,6 @@ function TextMap() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-
-
-  const applyPortal = (userCoordinates) => {
-      portalTiles.forEach(p => {
-        if (
-          p.coordinates.x === userCoordinates.x 
-          && p.coordinates.y === userCoordinates.y
-          && !justTeleported // if you just arrived, don't teleport back
-          ) {
-          setMapID(p.destination.map_id)
-          setUserCoordinates(p.destination.coordinates)
-          setJustTeleported(true)
-        }
-      })
-  }
 
 
   const applyForceDirection = ({ mapTiles, userCoordinates }) => {
